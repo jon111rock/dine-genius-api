@@ -36,59 +36,59 @@ class VoteAnalysisService {
    * @param {Object} analysisResult - 分析結果對象
    * @returns {Object} 關鍵偏好數據
    */
-  // extractKeyPreferences(analysisResult) {
-  //   if (!analysisResult || analysisResult.error) {
-  //     throw new Error('無效的分析結果');
-  //   }
+  extractKeyPreferences(analysisResult) {
+    if (!analysisResult || analysisResult.error) {
+      throw new Error('無效的分析結果');
+    }
     
-  //   return {
-  //     participantCount: analysisResult.participantCount,
-  //     primaryFoodType: analysisResult.mostPopularFoodType,
-  //     topFoodTypes: analysisResult.topFoodTypes,
-  //     budgetRange: {
-  //       min: analysisResult.budgetDistribution.min,
-  //       max: analysisResult.budgetDistribution.max,
-  //       average: analysisResult.budgetDistribution.average
-  //     },
-  //     spiciness: analysisResult.flavorPreferences.spiciness,
-  //     sweetness: analysisResult.flavorPreferences.sweetness,
-  //     dietaryRestrictions: this.extractDietaryRestrictionsFromComments(analysisResult.comments)
-  //   };
-  // }
+    return {
+      participantCount: analysisResult.participantCount,
+      primaryFoodType: analysisResult.mostPopularFoodType,
+      topFoodTypes: analysisResult.topFoodTypes,
+      budgetRange: {
+        min: analysisResult.budgetDistribution.min,
+        max: analysisResult.budgetDistribution.max,
+        average: analysisResult.budgetDistribution.average
+      },
+      spiciness: analysisResult.flavorPreferences.spiciness,
+      sweetness: analysisResult.flavorPreferences.sweetness,
+      dietaryRestrictions: this.extractDietaryRestrictionsFromComments(analysisResult.comments)
+    };
+  }
   
   /**
    * 從評論中提取飲食限制信息
    * @param {Array} comments - 評論陣列
    * @returns {Array} 提取的飲食限制
    */
-  // extractDietaryRestrictionsFromComments(comments) {
-  //   if (!comments || !Array.isArray(comments) || comments.length === 0) {
-  //     return [];
-  //   }
+  extractDietaryRestrictionsFromComments(comments) {
+    if (!comments || !Array.isArray(comments) || comments.length === 0) {
+      return [];
+    }
     
-  //   const dietaryKeywords = {
-  //     vegetarian: ['素食', '不吃肉', '菜食'],
-  //     vegan: ['全素', '純素'],
-  //     glutenFree: ['無麩質', '不含麩質'],
-  //     nutFree: ['堅果過敏', '不吃堅果'],
-  //     seafoodAllergy: ['海鮮過敏', '不吃海鮮'],
-  //     lactoseFree: ['乳糖不耐', '不吃奶製品']
-  //   };
+    const dietaryKeywords = {
+      vegetarian: ['素食', '不吃肉', '菜食'],
+      vegan: ['全素', '純素'],
+      glutenFree: ['無麩質', '不含麩質'],
+      nutFree: ['堅果過敏', '不吃堅果'],
+      seafoodAllergy: ['海鮮過敏', '不吃海鮮'],
+      lactoseFree: ['乳糖不耐', '不吃奶製品']
+    };
     
-  //   const restrictions = [];
+    const restrictions = [];
     
-  //   // 檢查評論中是否包含飲食限制關鍵詞
-  //   comments.forEach(comment => {
-  //     for (const [restriction, keywords] of OdietaryKeywordsbject.entries()) {
-  //       if (keywords.some(keyword => comment.includes(keyword))) {
-  //         restrictions.push(restriction);
-  //       }
-  //     }
-  //   });
+    // 檢查評論中是否包含飲食限制關鍵詞
+    comments.forEach(comment => {
+      for (const [restriction, keywords] of Object.entries(dietaryKeywords)) {
+        if (keywords.some(keyword => comment.includes(keyword))) {
+          restrictions.push(restriction);
+        }
+      }
+    });
     
-  //   // 返回不重複的限制列表
-  //   return [...new Set(restrictions)];
-  // }
+    // 返回不重複的限制列表
+    return [...new Set(restrictions)];
+  }
 }
 
 export default new VoteAnalysisService(); 
