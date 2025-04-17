@@ -1,0 +1,56 @@
+{
+  "votes": [
+    {
+      "participantId": "user1",
+      "participantName": "王小明",
+      "foodType": "日式",
+      "spiciness": 2,
+      "sweetness": 3,
+      "budget": 400,
+      "comments": "希望有素食選擇"
+    },
+    {
+      "participantId": "user2",
+      "participantName": "陳美麗",
+      "foodType": "泰式",
+      "spiciness": 4,
+      "sweetness": 3,
+      "budget": 350,
+      "comments": "喜歡辣的食物"
+    },
+    {
+      "participantId": "user3",
+      "participantName": "林大偉",
+      "foodType": "日式",
+      "spiciness": 1,
+      "sweetness": 2,
+      "budget": 500,
+      "comments": "偏好新鮮海鮮"
+    },
+    {
+      "participantId": "user4",
+      "participantName": "張小芳",
+      "foodType": "義式",
+      "spiciness": 2,
+      "sweetness": 4,
+      "budget": 450,
+      "comments": "pasta愛好者"
+    },
+    {
+      "participantId": "user5",
+      "participantName": "李志明",
+      "foodType": "日式",
+      "spiciness": 3,
+      "sweetness": 2,
+      "budget": 380,
+      "comments": "壽司和刺身"
+    }
+  ],
+  "options": {
+    "language": "zh-TW",
+    "budgetCurrency": "TWD",
+    "locationContext": "台北市",
+    "maxResults": 3,
+    "includeReasons": true
+  }
+} 

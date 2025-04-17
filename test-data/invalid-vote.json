@@ -1,0 +1,11 @@
+{
+  "votes": [
+    {
+      "participantName": "王小明",
+      "foodType": "日式",
+      "spiciness": 2,
+      "sweetness": 3,
+      "budget": "不確定"
+    }
+  ]
+} 
