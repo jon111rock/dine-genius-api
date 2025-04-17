@@ -123,6 +123,13 @@ const parseRecommendationsFromText = (text) => {
                        context.match(/預算[:：]?\s*([^,，.。\n]+)/);
     if (priceMatch) priceRange = priceMatch[1].trim();
     
+    // 嘗試提取地址
+    let address = null;
+    const addressMatch = context.match(/地址[:：]?\s*([^,，.。\n]+)/) ||
+                          context.match(/位於[:：]?\s*([^,，.。\n]+)/) ||
+                          context.match(/位置[:：]?\s*([^,，.。\n]+)/);
+    if (addressMatch) address = addressMatch[1].trim();
+    
     // 提取理由（如果有）
     const reasons = [];
     const reasonPattern = /(?:因為|原因|理由)[:：]?\s*([^,，.。\n]+)/g;
@@ -135,13 +142,14 @@ const parseRecommendationsFromText = (text) => {
     recommendations.push({
       name,
       type: type || "未指定",
+      address: address || "詳細地址未提供",
       priceRange: priceRange || "未指定",
       reasons: reasons.length > 0 ? reasons : undefined
     });
   }
   
   return recommendations.length > 0 ? recommendations : 
-         [{ name: "解析失敗，請查看原始回應", type: "未知", priceRange: "未知" }];
+         [{ name: "解析失敗，請查看原始回應", type: "未知", address: "詳細地址未提供", priceRange: "未知" }];
 };
 
 /**
@@ -153,6 +161,7 @@ const ensureRecommendationFormat = (recommendation) => {
   return {
     name: recommendation.name || recommendation.restaurantName || "未命名餐廳",
     type: recommendation.type || recommendation.cuisine || recommendation.foodType || "未指定",
+    address: recommendation.address || recommendation.location || "詳細地址未提供",
     priceRange: recommendation.priceRange || recommendation.price || recommendation.budget || "未指定",
     reasons: recommendation.reasons || recommendation.reasonsForRecommendation || undefined,
     dishes: recommendation.dishes || recommendation.recommendedDishes || undefined

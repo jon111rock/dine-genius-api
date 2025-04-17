@@ -40,7 +40,7 @@ ${outputInstructions}
    * @returns {String} 系統提示文本
    */
   buildSystemPrompt() {
-    return `你是一位專業的餐廳推薦助手，專門根據群體的飲食偏好提供相關、適合且多樣化的餐廳建議。你具備深入的美食知識，能夠分析參與者的偏好，提供符合口味、預算和特殊需求的餐廳推薦。`;
+    return `你是一位專業的餐廳推薦助手，專門根據群體的飲食偏好提供相關、適合且多樣化的餐廳建議。你具備深入的美食知識，能夠分析參與者的偏好，提供符合口味、預算和特殊需求的餐廳推薦。在推薦餐廳時，你必須先搜尋Google Maps確認該地區真實存在的餐廳，並確保所有推薦的餐廳位於用戶指定地點的周邊區域，且具有真實、準確的地址。`;
   }
   
   /**
@@ -90,6 +90,9 @@ ${outputInstructions}
     // 添加地點上下文
     summary += `\n- 地點上下文：${location}`;
     
+    // 強調要在指定地點周邊推薦餐廳
+    summary += `\n\n請特別注意：你必須在「${location}」周邊地區推薦真實存在的餐廳。請先使用Google Maps搜尋確認該地區有符合條件的餐廳，再進行推薦。`;
+    
     return summary;
   }
   
@@ -101,12 +104,16 @@ ${outputInstructions}
    */
   buildOutputInstructions(maxResults, includeReasons) {
     let outputInstructions = `# 輸出要求
+在提供推薦前，請先在Google Maps上搜尋指定地點周邊的餐廳，確保你推薦的餐廳真實存在且地址正確。
+
 請推薦${maxResults}家最適合這群人的餐廳，並以JSON格式輸出，包含以下字段：
 \`\`\`json
 [
   {
     "name": "餐廳名稱",
     "type": "餐廳類型",
+    "address": "從Google Maps獲取的準確地址，必須真實存在於指定地點周邊，包含完整城市、區域、街道及門牌號",
+    "mapUrl": "餐廳的Google地圖連結，格式為 https://maps.google.com/?q=餐廳名稱+地址",
     "priceRange": "價格範圍"`;
     
     if (includeReasons) {
@@ -120,7 +127,14 @@ ${outputInstructions}
 ]
 \`\`\`
 
-請僅回傳標準的JSON格式，不要加入其他解釋文字。每家餐廳應該各有特色且符合不同的口味偏好。`;
+請僅回傳標準的JSON格式，不要加入其他解釋文字。每家餐廳應該各有特色且符合不同的口味偏好。
+
+餐廳選擇要求：
+1. 所有餐廳必須位於用戶指定地點的周邊區域
+2. 所有地址必須來自Google Maps，確保準確且真實存在
+3. 請勿推薦不真實或假想的餐廳
+4. 地址格式必須完整，包含城市、區域、街道名稱和實際門牌號碼
+5. 必須為每家餐廳提供有效的Google地圖連結，可通過組合餐廳名稱和地址生成`;
     
     return outputInstructions;
   }
