@@ -4,7 +4,7 @@ import { createSuccessResponse, createErrorResponse } from '../utils/responseFor
 import voteAnalysisService from '../services/voteAnalysisService.js';
 import promptService from '../services/promptService.js';
 import aiService from '../services/aiService.js';
-
+import { updateRoomData } from '../firebase/rooms.js';
 /**
  * 餐廳推薦控制器 - 處理推薦API請求
  */
@@ -38,7 +38,13 @@ class RecommendationController {
       // 6. 格式化AI回應
       const recommendations = formatAIResponse(aiResponse, analysis, startTime);
       
-      // 7. 返回成功響應
+      // 7. 將推薦餐廳保存到Firebase
+      const roomId = req.body.roomId;
+      updateRoomData(roomId, { recommendations });
+      console.log('推薦餐廳已保存到Firebase');
+      
+
+      // 8. 返回成功響應
       return res.status(200).json(recommendations);
       
     } catch (error) {
