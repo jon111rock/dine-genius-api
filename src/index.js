@@ -15,8 +15,28 @@ const PORT = process.env.PORT || 3000;
 // 基本中間件設置
 app.use(express.json({ limit: '1mb' }));
 app.use(handleJsonErrors); // JSON解析錯誤處理
+
+// 設置 CORS 中間件 - 允許跨域請求
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',') 
+  : ['http://localhost:3000'];
+
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : '*'
+  origin: function(origin, callback) {
+    // 允許沒有來源的請求（如移動應用或 Postman）
+    if(!origin) return callback(null, true);
+    
+    if(allowedOrigins.indexOf(origin) === -1) {
+      const msg = `此站點的CORS政策不允許來自此來源 ${origin} 的訪問`;
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  credentials: true, // 允許攜帶憑證（cookies等）
+  maxAge: 86400, // 預檢請求結果緩存24小時
+  optionsSuccessStatus: 204 // 預檢請求成功時的狀態碼
 }));
 
 // API路由 (帶版本號)
@@ -37,6 +57,7 @@ app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`伺服器運行於 http://localhost:${PORT}`);
   console.log(`API文檔訪問路徑: http://localhost:${PORT}/api/v1/health`);
+  console.log(`CORS已啟用，允許的來源: ${allowedOrigins.join(', ')}`);
 });
 
 export default app; 
