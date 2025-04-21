@@ -216,6 +216,29 @@ const ensureRecommendationFormat = (recommendation) => {
     photoUrl = null; // 確保未提供時設為 null 而不是 undefined
   }
   
+  // 處理評分信息
+  let rating = null;
+  if (recommendation.rating) {
+    if (typeof recommendation.rating === 'object') {
+      // 如果已經是對象格式，確保所有必要字段都存在
+      rating = {
+        score: recommendation.rating.score || 0,
+        outOf: recommendation.rating.outOf || 5.0,
+        source: recommendation.rating.source || "未知來源",
+        count: recommendation.rating.count || "0"
+      };
+    } else {
+      // 如果是字符串或數字，轉換為標準格式
+      const ratingValue = parseFloat(recommendation.rating) || 0;
+      rating = {
+        score: ratingValue,
+        outOf: 5.0,
+        source: "未知來源",
+        count: "0"
+      };
+    }
+  }
+  
   return {
     name: name,
     type: recommendation.type || recommendation.cuisine || recommendation.foodType || "未指定",
@@ -223,6 +246,7 @@ const ensureRecommendationFormat = (recommendation) => {
     mapUrl: mapUrl || null, // 使用 null 代替 undefined
     photoUrl: photoUrl, // 已確保為有效值或 null
     priceRange: recommendation.priceRange || recommendation.price || recommendation.budget || "未指定",
+    rating: rating, // 新增評分字段
     reasons: recommendation.reasons || recommendation.reasonsForRecommendation || [],
     dishes: recommendation.dishes || recommendation.recommendedDishes || []
   };

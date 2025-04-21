@@ -34,7 +34,7 @@ class RecommendationController {
       
       // 5. 調用AI服務獲取推薦
       const aiResponse = await aiService.generateWithRetry(prompt);
-      
+      console.log('aiResponse', aiResponse);
       // 6. 格式化AI回應
       const recommendations = formatAIResponse(aiResponse, analysis, startTime);
       
