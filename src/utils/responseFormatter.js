@@ -130,6 +130,13 @@ const parseRecommendationsFromText = (text) => {
                           context.match(/位置[:：]?\s*([^,，.。\n]+)/);
     if (addressMatch) address = addressMatch[1].trim();
     
+    // 嘗試提取 Google 地圖連結
+    let mapUrl = null;
+    const mapMatch = context.match(/地圖[:：]?\s*(https:\/\/maps\.google\.com\/\?q=[^\s]+)/) ||
+                      context.match(/(https:\/\/maps\.google\.com\/\?q=[^\s]+)/) ||
+                      context.match(/(https:\/\/maps\.google\.com[^\s]+)/);
+    if (mapMatch) mapUrl = mapMatch[1].trim();
+    
     // 提取理由（如果有）
     const reasons = [];
     const reasonPattern = /(?:因為|原因|理由)[:：]?\s*([^,，.。\n]+)/g;
@@ -138,13 +145,23 @@ const parseRecommendationsFromText = (text) => {
       reasons.push(reasonMatch[1].trim());
     }
     
+    // 提取推薦菜品（如果有）
+    const dishes = [];
+    const dishPattern = /(?:推薦菜品|招牌菜|特色菜)[:：]?\s*([^,，.。\n]+)/g;
+    let dishMatch;
+    while ((dishMatch = dishPattern.exec(context)) !== null) {
+      dishes.push(dishMatch[1].trim());
+    }
+    
     // 添加到推薦列表
     recommendations.push({
       name,
       type: type || "未指定",
       address: address || "詳細地址未提供",
+      mapUrl: mapUrl,
       priceRange: priceRange || "未指定",
-      reasons: reasons.length > 0 ? reasons : undefined
+      reasons: reasons.length > 0 ? reasons : undefined,
+      dishes: dishes.length > 0 ? dishes : undefined
     });
   }
   
@@ -158,10 +175,23 @@ const parseRecommendationsFromText = (text) => {
  * @returns {Object} 格式統一的推薦
  */
 const ensureRecommendationFormat = (recommendation) => {
+  // 獲取餐廳名稱和地址
+  const name = recommendation.name || recommendation.restaurantName || "未命名餐廳";
+  const address = recommendation.address || recommendation.location || "詳細地址未提供";
+  
+  // 生成 Google 地圖連結（如果沒有提供）
+  let mapUrl = recommendation.mapUrl || recommendation.googleMapUrl || recommendation.mapLink;
+  if (!mapUrl && address !== "詳細地址未提供") {
+    // 使用餐廳名稱和地址創建 Google 地圖連結
+    const encodedQuery = encodeURIComponent(`${name} ${address}`);
+    mapUrl = `https://maps.google.com/?q=${encodedQuery}`;
+  }
+  
   return {
-    name: recommendation.name || recommendation.restaurantName || "未命名餐廳",
+    name: name,
     type: recommendation.type || recommendation.cuisine || recommendation.foodType || "未指定",
-    address: recommendation.address || recommendation.location || "詳細地址未提供",
+    address: address,
+    mapUrl: mapUrl || undefined,
     priceRange: recommendation.priceRange || recommendation.price || recommendation.budget || "未指定",
     reasons: recommendation.reasons || recommendation.reasonsForRecommendation || undefined,
     dishes: recommendation.dishes || recommendation.recommendedDishes || undefined
