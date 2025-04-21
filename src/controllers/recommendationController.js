@@ -40,10 +40,18 @@ class RecommendationController {
       
       // 7. 將推薦餐廳保存到Firebase
       const roomId = req.body.roomId;
-      updateRoomData(roomId, { recommendations });
-      console.log('推薦餐廳已保存到Firebase');
+      if (roomId) {
+        try {
+          await updateRoomData(roomId, { recommendations });
+          console.log('推薦餐廳已保存到Firebase');
+        } catch (firebaseError) {
+          // 記錄錯誤但不中斷流程，因為即使 Firebase 保存失敗，我們仍然可以返回 API 響應
+          console.error('保存推薦到 Firebase 失敗，但繼續處理請求:', firebaseError);
+        }
+      } else {
+        console.log('未提供 roomId，跳過保存到 Firebase');
+      }
       
-
       // 8. 返回成功響應
       return res.status(200).json(recommendations);
       

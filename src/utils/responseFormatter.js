@@ -137,6 +137,13 @@ const parseRecommendationsFromText = (text) => {
                       context.match(/(https:\/\/maps\.google\.com[^\s]+)/);
     if (mapMatch) mapUrl = mapMatch[1].trim();
     
+    // 嘗試提取照片連結
+    let photoUrl = null;
+    const photoMatch = context.match(/照片[:：]?\s*(https?:\/\/[^\s]+\.(jpg|jpeg|png|webp)[^\s]*)/) ||
+                       context.match(/圖片[:：]?\s*(https?:\/\/[^\s]+\.(jpg|jpeg|png|webp)[^\s]*)/) ||
+                       context.match(/(https?:\/\/[^\s]+\.(jpg|jpeg|png|webp)[^\s]*)/);
+    if (photoMatch) photoUrl = photoMatch[1].trim();
+    
     // 提取理由（如果有）
     const reasons = [];
     const reasonPattern = /(?:因為|原因|理由)[:：]?\s*([^,，.。\n]+)/g;
@@ -158,15 +165,25 @@ const parseRecommendationsFromText = (text) => {
       name,
       type: type || "未指定",
       address: address || "詳細地址未提供",
-      mapUrl: mapUrl,
+      mapUrl: mapUrl || null,
+      photoUrl: photoUrl || null,
       priceRange: priceRange || "未指定",
-      reasons: reasons.length > 0 ? reasons : undefined,
-      dishes: dishes.length > 0 ? dishes : undefined
+      reasons: reasons.length > 0 ? reasons : [],
+      dishes: dishes.length > 0 ? dishes : []
     });
   }
   
   return recommendations.length > 0 ? recommendations : 
-         [{ name: "解析失敗，請查看原始回應", type: "未知", address: "詳細地址未提供", priceRange: "未知" }];
+         [{ 
+            name: "解析失敗，請查看原始回應", 
+            type: "未知", 
+            address: "詳細地址未提供", 
+            mapUrl: null,
+            photoUrl: null,
+            priceRange: "未知",
+            reasons: [],
+            dishes: []
+          }];
 };
 
 /**
@@ -187,13 +204,26 @@ const ensureRecommendationFormat = (recommendation) => {
     mapUrl = `https://maps.google.com/?q=${encodedQuery}`;
   }
   
+  // 檢查照片URL是否有效
+  let photoUrl = recommendation.photoUrl || recommendation.image || recommendation.imageUrl || recommendation.picture;
+  // 確保圖片URL有效（簡單檢查是否為URL格式）
+  if (photoUrl) {
+    if (!/^https?:\/\/.+\.(jpg|jpeg|png|webp)/i.test(photoUrl)) {
+      // 如果不是典型的圖片URL，可能不是直接的圖片連結
+      photoUrl = null;
+    }
+  } else {
+    photoUrl = null; // 確保未提供時設為 null 而不是 undefined
+  }
+  
   return {
     name: name,
     type: recommendation.type || recommendation.cuisine || recommendation.foodType || "未指定",
     address: address,
-    mapUrl: mapUrl || undefined,
+    mapUrl: mapUrl || null, // 使用 null 代替 undefined
+    photoUrl: photoUrl, // 已確保為有效值或 null
     priceRange: recommendation.priceRange || recommendation.price || recommendation.budget || "未指定",
-    reasons: recommendation.reasons || recommendation.reasonsForRecommendation || undefined,
-    dishes: recommendation.dishes || recommendation.recommendedDishes || undefined
+    reasons: recommendation.reasons || recommendation.reasonsForRecommendation || [],
+    dishes: recommendation.dishes || recommendation.recommendedDishes || []
   };
 }; 
