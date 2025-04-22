@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import helmet from 'helmet';
 import { recommendationRoutes } from './routes/recommendation.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { handleJsonErrors } from './middleware/validator.js';
@@ -15,6 +16,37 @@ const PORT = process.env.PORT || 3000;
 // 基本中間件設置
 app.use(express.json({ limit: '1mb' }));
 app.use(handleJsonErrors); // JSON解析錯誤處理
+
+// 安全頭部配置 - 使用helmet中間件
+app.use(helmet());
+// 自定義Content-Security-Policy
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:"],
+      connectSrc: ["'self'", process.env.NODE_ENV === 'production' ? '' : 'http://localhost:*'],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+    },
+  })
+);
+// 設置X-XSS-Protection
+app.use(helmet.xssFilter());
+// 設置X-Content-Type-Options
+app.use(helmet.noSniff());
+// 設置Strict-Transport-Security
+app.use(
+  helmet.hsts({
+    maxAge: 15552000, // 180天
+    includeSubDomains: true,
+    preload: true,
+  })
+);
 
 // 設置 CORS 中間件 - 允許跨域請求
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
