@@ -27,7 +27,11 @@ app.use(
       scriptSrc: ["'self'", "'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:"],
-      connectSrc: ["'self'", process.env.NODE_ENV === 'production' ? '' : 'http://localhost:*'],
+      connectSrc: ["'self'", 
+        process.env.NODE_ENV === 'production' 
+          ? 'https://dine-vote.firebaseapp.com https://dine-vote.web.app' 
+          : 'http://localhost:*'
+      ],
       fontSrc: ["'self'"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
@@ -51,7 +55,7 @@ app.use(
 // 設置 CORS 中間件 - 允許跨域請求
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
   ? process.env.ALLOWED_ORIGINS.split(',') 
-  : ['http://localhost:3000'];
+  : ['http://localhost:3000', 'https://dine-vote.firebaseapp.com', 'https://dine-vote.web.app'];
 
 app.use(cors({
   origin: function(origin, callback) {
