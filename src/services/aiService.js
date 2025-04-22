@@ -10,12 +10,13 @@ class AIService {
   constructor() {
     this.defaultParams = {
       temperature: 0.2,     // 低溫度，提高確定性
-      maxOutputTokens: 1024, // 控制回應長度
+      maxOutputTokens: 800, // 控制回應長度，降低以加快速度
       topK: 40,             // 控制多樣性
       topP: 0.95            // 控制多樣性
     };
     
-    this.timeoutMs = parseInt(process.env.API_TIMEOUT) || 30000; // 預設30秒超時
+    // 將超時時間設為8秒，確保不超過Vercel的10秒限制
+    this.timeoutMs = parseInt(process.env.API_TIMEOUT) || 8000; // 預設8秒超時
   }
   
   /**
@@ -79,7 +80,7 @@ class AIService {
    * @param {Object} options - API調用選項
    * @returns {Promise<String>} AI生成的回應文本
    */
-  async generateWithRetry(prompt, maxRetries = 2, options = {}) {
+  async generateWithRetry(prompt, maxRetries = 1, options = {}) {
     let lastError;
     
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -102,8 +103,8 @@ class AIService {
         
         console.log(`AI請求失敗，進行第${attempt + 1}次重試...`);
         
-        // 等待一小段時間再重試
-        await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+        // 等待時間縮短，在Vercel環境中不要等待太久
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
     }
   }

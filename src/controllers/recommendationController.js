@@ -34,26 +34,25 @@ class RecommendationController {
       
       // 5. 調用AI服務獲取推薦
       const aiResponse = await aiService.generateWithRetry(prompt);
-      console.log('aiResponse', aiResponse);
+      
       // 6. 格式化AI回應
       const recommendations = formatAIResponse(aiResponse, analysis, startTime);
       
-      // 7. 將推薦餐廳保存到Firebase
+      // 7. 先發送響應，避免超時
+      res.status(200).json(recommendations);
+      
+      // 8. 異步保存到Firebase，不等待完成
       const roomId = req.body.roomId;
       if (roomId) {
-        try {
-          await updateRoomData(roomId, { recommendations });
-          console.log('推薦餐廳已保存到Firebase');
-        } catch (firebaseError) {
-          // 記錄錯誤但不中斷流程，因為即使 Firebase 保存失敗，我們仍然可以返回 API 響應
-          console.error('保存推薦到 Firebase 失敗，但繼續處理請求:', firebaseError);
-        }
+        updateRoomData(roomId, { recommendations })
+          .then(() => console.log('推薦餐廳已異步保存到Firebase'))
+          .catch(firebaseError => console.error('保存推薦到Firebase失敗:', firebaseError));
       } else {
-        console.log('未提供 roomId，跳過保存到 Firebase');
+        console.log('未提供roomId，跳過保存到Firebase');
       }
       
-      // 8. 返回成功響應
-      return res.status(200).json(recommendations);
+      // 函數結束，響應已發送
+      return;
       
     } catch (error) {
       console.error('推薦生成失敗:', error);
