@@ -55,7 +55,7 @@ app.use(
 // 設置 CORS 中間件 - 允許跨域請求
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
   ? process.env.ALLOWED_ORIGINS.split(',') 
-  : ['http://localhost:3000', 'https://dine-vote.firebaseapp.com', 'https://dine-vote.web.app'];
+  : ['http://localhost:5173','http://localhost:3000', 'https://dine-vote.firebaseapp.com', 'https://dine-vote.web.app'];
 
 app.use(cors({
   origin: function(origin, callback) {
