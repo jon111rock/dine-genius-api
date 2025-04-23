@@ -11,24 +11,31 @@ import {
  * @param {string} roomId - 房間ID
  * @returns {Promise<Object|null>} - 返回房間數據或null（如果不存在）
  */
-export const getRoomData = async (roomId) => {
+export async function getRoomData(roomId) {
   try {
-    console.log(`嘗試獲取房間數據，房間ID: ${roomId}`);
-    const roomRef = doc(db, 'rooms', roomId);
-    const roomSnap = await getDoc(roomRef);
+    console.log(`嘗試獲取房間數據，ID: ${roomId}`);
     
-    if (roomSnap.exists()) {
-      console.log(`成功獲取房間數據，房間ID: ${roomId}`);
-      return { id: roomSnap.id, ...roomSnap.data() };
-    } else {
-      console.log(`房間ID ${roomId} 不存在`);
+    if (!roomId) {
+      console.error('獲取房間數據失敗：未提供roomId');
       return null;
     }
+    
+    // 使用 Admin SDK 的 Firestore 語法
+    const roomDoc = await db.collection('rooms').doc(roomId).get();
+    
+    if (!roomDoc.exists) {
+      console.log(`房間不存在，ID: ${roomId}`);
+      return null;
+    }
+    
+    const roomData = roomDoc.data();
+    console.log(`成功獲取房間數據，ID: ${roomId}`);
+    return roomData;
   } catch (error) {
-    console.error(`獲取房間數據失敗，房間ID: ${roomId}，錯誤:`, error);
+    console.error(`獲取房間數據失敗，ID: ${roomId}，錯誤:`, error);
     throw error;
   }
-};
+}
 
 /**
  * 向房間數據中添加新字段或更新現有字段
@@ -40,16 +47,12 @@ export const updateRoomData = async (roomId, newData) => {
   try {
     console.log(`嘗試更新房間數據，房間ID: ${roomId}`);
     
-    // 確保房間存在
-    console.log(`檢查房間是否存在，房間ID: ${roomId}`);
-    const roomExists = await getRoomData(roomId);
-    if (!roomExists) {
-      console.error(`無法更新不存在的房間: ${roomId}`);
-      return false;
+    if(!roomId){
+      throw new Error('房間ID不能為空');
     }
-    
+
+
     // 清理數據，移除 undefined 值（Firebase 不支持）
-    console.log(`清理數據，移除undefined值`);
     const cleanedData = removeUndefinedValues(newData);
     
     // 添加更新時間戳
@@ -59,10 +62,9 @@ export const updateRoomData = async (roomId, newData) => {
     };
     
     // 更新文檔
-    console.log(`準備更新文檔，房間ID: ${roomId}`);
-    const roomRef = doc(db, 'rooms', roomId);
-    await updateDoc(roomRef, dataToUpdate);
+    await db.collection('rooms').doc(roomId).update(cleanedData);
     console.log(`成功更新房間數據，房間ID: ${roomId}`);
+    
     return true;
   } catch (error) {
     console.error(`更新房間數據失敗，房間ID: ${roomId}，錯誤:`, error);
