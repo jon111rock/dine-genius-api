@@ -12,6 +12,12 @@ const router = Router();
 router.post('/recommendations', validateRecommendationRequest, recommendationController.getRecommendations);
 
 /**
+ * 推薦API端點
+ * GET /recommendations - 獲取餐廳推薦
+ */
+router.get('/recommendations/:roomId', recommendationController.getExistingRecommendations);
+
+/**
  * 健康檢查端點
  * GET /health - 檢查API服務狀態
  */

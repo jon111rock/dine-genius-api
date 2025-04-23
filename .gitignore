@@ -53,3 +53,7 @@ firebase-debug.*.log
 # Project specific
 .cursorrules
 docs/ 
+
+# cursor
+.cursorrules
+.cursor/*

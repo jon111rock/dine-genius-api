@@ -4,7 +4,7 @@ import { createSuccessResponse, createErrorResponse } from '../utils/responseFor
 import voteAnalysisService from '../services/voteAnalysisService.js';
 import promptService from '../services/promptService.js';
 import aiService from '../services/aiService.js';
-import { updateRoomData } from '../firebase/rooms.js';
+import { updateRoomData, getRoomData } from '../firebase/rooms.js';
 /**
  * 餐廳推薦控制器 - 處理推薦API請求
  */
@@ -73,6 +73,25 @@ class RecommendationController {
     }
   }
   
+  /**
+   * 獲取已存在的餐廳推薦
+   */
+  async getExistingRecommendations(req, res) {
+    try {
+      const roomId = req.params.roomId;
+      const roomData = await getRoomData(roomId);
+      if (!roomData) {
+        throw new Error('RoomData Not Found');
+      } else if (!roomData.recommendations) {
+        throw new Error('Recommendations Not Found');
+      } else {
+        return res.status(200).json(createSuccessResponse(roomData.recommendations));
+      }
+    } catch (error) {
+      return res.status(500).json(createErrorResponse('獲取已存在的餐廳推薦失敗', 500, error.message));
+    }
+  }
+
   /**
    * 健康檢查端點 - 確認API服務狀態
    * @param {Object} req - Express請求對象
