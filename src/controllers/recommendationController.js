@@ -44,9 +44,27 @@ class RecommendationController {
       // 8. 異步保存到Firebase，不等待完成
       const roomId = req.body.roomId;
       if (roomId) {
+        console.log(`開始異步保存推薦結果到Firebase，房間ID: ${roomId}`);
+        console.log(`recommendations對象類型: ${typeof recommendations}`);
+        console.log(`recommendations對象長度: ${Object.keys(recommendations).length}`);
+        
         updateRoomData(roomId, { recommendations })
-          .then(() => console.log('推薦餐廳已異步保存到Firebase'))
-          .catch(firebaseError => console.error('保存推薦到Firebase失敗:', firebaseError));
+          .then(result => {
+            console.log(`推薦餐廳已異步保存到Firebase，結果: ${result ? '成功' : '失敗'}`);
+          })
+          .catch(firebaseError => {
+            console.error('保存推薦到Firebase失敗:', firebaseError);
+            // 輸出詳細錯誤信息
+            if (firebaseError.code) {
+              console.error(`Firebase錯誤代碼: ${firebaseError.code}`);
+            }
+            if (firebaseError.message) {
+              console.error(`Firebase錯誤信息: ${firebaseError.message}`);
+            }
+            if (firebaseError.stack) {
+              console.error(`Firebase錯誤堆疊: ${firebaseError.stack}`);
+            }
+          });
       } else {
         console.log('未提供roomId，跳過保存到Firebase');
       }
