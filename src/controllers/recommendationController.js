@@ -43,6 +43,8 @@ class RecommendationController {
       
       // 8. 異步保存到Firebase，不等待完成
       const roomId = req.body.roomId;
+      console.log('debug已經獲取AI回應，roomId', roomId);
+      
       if (roomId) {
         updateRoomData(roomId, { recommendations })
           .then(() => console.log('推薦餐廳已異步保存到Firebase'))
