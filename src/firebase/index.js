@@ -1,22 +1,33 @@
-import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
-const firebaseConfig = {
-  apiKey: process.env.VITE_FIREBASE_API_KEY,
-  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.VITE_FIREBASE_APP_ID,
-};
+import admin from 'firebase-admin';
 
-// 初始化 Firebase
-const app = initializeApp(firebaseConfig);
+let firebaseApp;
 
-// 初始化 Firestore
-const db = getFirestore(app);
+// 初始化 Firebase Admin SDK
+try {
+  console.log('嘗試初始化 Firebase Admin SDK...');
+  
+  // 檢查是否已初始化
+  if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
+    throw new Error('缺少 FIREBASE_SERVICE_ACCOUNT 環境變數');
+  }
+  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  firebaseApp = admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: `https://${process.env.VITE_FIREBASE_PROJECT_ID || serviceAccount.project_id}.firebaseio.com`
+  });
+} catch (error) {
+  console.error('Firebase Admin SDK 初始化失敗:', error);
+  throw error;
+}
 
-// 初始化 Auth
-const auth = getAuth(app);
+// 獲取 Firestore 實例
+const db = admin.firestore();
+console.log('Firestore 實例創建成功');
 
-export { db, auth };
+// 獲取 Auth 實例
+const auth = admin.auth();
+console.log('Auth 實例創建成功');
+
+// 導出所需的服務
+export { admin, db, auth, firebaseApp };
+
