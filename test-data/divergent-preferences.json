@@ -1,0 +1,26 @@
+{
+  "votes": [
+    {
+      "userId": "user1",
+      "foodType": "日式-麵食",
+      "spiciness": 3,
+      "sweetness": 2,
+      "budget": 400,
+      "comments": "喜歡拉麵和烏龍麵"
+    },
+    {
+      "userId": "user2",
+      "foodType": "美式-素食",
+      "spiciness": 2,
+      "sweetness": 3,
+      "budget": 450,
+      "comments": "素食主義者，不吃肉"
+    }
+  ],
+  "options": {
+    "location": "台北市",
+    "language": "zh-TW",
+    "maxResults": 4
+  },
+  "roomId": "test-divergent-preferences"
+} 
