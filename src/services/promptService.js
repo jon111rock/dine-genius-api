@@ -71,7 +71,7 @@ ${outputInstructions}
     const { 
       participantCount, 
       primaryFoodType, 
-      topFoodTypes, 
+      dominantPreferences,
       budgetRange, 
       spiciness, 
       sweetness, 
@@ -81,8 +81,19 @@ ${outputInstructions}
     // 建構精簡摘要
     let summary = `根據${participantCount}位參與者的投票，請推薦餐廳。
 
-# 關鍵偏好
-- 主要餐廳類型：${primaryFoodType || '無明確偏好'}`;
+# 關鍵偏好`;
+
+    // 檢查是否存在偏好分歧
+    if (dominantPreferences && dominantPreferences.length > 1) {
+      // 存在明顯的偏好分歧，列出所有主要偏好
+      summary += `\n- 主要偏好分歧：`;
+      dominantPreferences.forEach(pref => {
+        summary += `\n  - ${pref.type} (重要性: ${pref.score})`;
+      });
+    } else {
+      // 不存在明顯分歧，使用單一主要偏好
+      summary += `\n- 主要餐廳類型：${primaryFoodType || '無明確偏好'}`;
+    }
 
     // 添加預算資訊
     summary += `\n- 預算：${budgetRange.min}-${budgetRange.max}${currency}`;
@@ -132,6 +143,8 @@ ${outputInstructions}
   }
 ]
 \`\`\`
+
+**重要平衡指示**：如果"關鍵偏好"部分指出了多個主要偏好分歧，請確保您推薦的 ${maxResults} 家餐廳能**平均地代表**這些不同的偏好類別。例如，如果有兩個主要偏好，請盡力為每個偏好推薦相似數量的餐廳。
 
 請僅回傳標準的JSON格式，不要加入其他解釋文字。每家餐廳應具有不同特色。
 
